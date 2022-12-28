@@ -10,31 +10,15 @@ import (
 )
 
 var (
-	defaultLogger              = NewLogger("main")
-	defaultLevel               = LevelInfo
-	defaultWriter    io.Writer = os.Stdout
-	defaultFormatter           = BasicFormatter
+	defaultLogger  = NewLogger("main")
+	defaultLevel   = LevelInfo
+	defaultOutputs = []*Output{{Writer: os.Stdout, Formatter: BasicFormatter}}
 )
 
-func DefaultLogger() Logger {
-	return defaultLogger
-}
-
-func SetDefaultLogger(logger Logger) {
-	defaultLogger = logger
-}
-
-func SetDefaultLevel(level Level) {
-	defaultLevel = level
-}
-
-func SetDefaultWriter(w io.Writer) {
-	defaultWriter = w
-}
-
-func SetDefaultFormatter(formatter Formatter) {
-	defaultFormatter = formatter
-}
+func DefaultLogger() Logger              { return defaultLogger }
+func SetDefaultLogger(logger Logger)     { defaultLogger = logger }
+func SetDefaultLevel(level Level)        { defaultLevel = level }
+func SetDefaultOutput(outputs []*Output) { defaultOutputs = outputs }
 
 func Fatalf(format string, args ...any)        { DefaultLogger().Fatalf(format, args...) }
 func Fatal(msg string, args ...any)            { DefaultLogger().Fatal(msg, args...) }
@@ -52,17 +36,15 @@ func Trace(msg string, args ...any)            { DefaultLogger().Trace(msg, args
 // ===============================================================================================
 
 type slogger struct {
-	module    string
-	writer    io.Writer
-	level     Level
-	formatter Formatter
+	module  string
+	level   Level
+	outputs []*Output
 }
 
 func NewLogger(module string) Logger {
 	return &slogger{
-		module:    module,
-		level:     -1,
-		formatter: defaultFormatter,
+		module: module,
+		level:  -1,
 	}
 }
 
@@ -78,37 +60,26 @@ func (l *slogger) Level() Level {
 	}
 }
 
-func (l *slogger) SetWriter(w io.Writer) {
-	l.writer = w
+func (l *slogger) SetOutputs(outputs []*Output) {
+	l.outputs = outputs
 }
 
-func (l *slogger) getWriter() io.Writer {
-	if l.writer == nil {
-		return defaultWriter
+func (l *slogger) getOutputs() []*Output {
+	if l.outputs == nil {
+		return defaultOutputs
 	} else {
-		return l.writer
+		return l.outputs
 	}
 }
 
-func (l *slogger) SetFormatter(formatter Formatter) {
-	l.formatter = formatter
-}
-
-func (l *slogger) getFormatter() Formatter {
-	if l.formatter == nil {
-		return defaultFormatter
-	} else {
-		return l.formatter
+func (l *slogger) printMsg(level Level, msg string, args ...any) {
+	for _, output := range l.getOutputs() {
+		output.Formatter(output.Writer, time.Now(), level, l.module, msg)
 	}
 }
 
 func (l *slogger) printf(level Level, format string, args ...any) {
-	msg := fmt.Sprintf(format, args...)
-	l.getFormatter()(l.getWriter(), time.Now(), level, l.module, msg)
-}
-
-func (l *slogger) printParams(level Level, msg string, args ...any) {
-	l.getFormatter()(l.getWriter(), time.Now(), level, l.module, msg, args...)
+	l.printMsg(level, fmt.Sprintf(format, args...))
 }
 
 func (l *slogger) Fatalf(format string, args ...any) {
@@ -119,7 +90,7 @@ func (l *slogger) Fatalf(format string, args ...any) {
 
 func (l *slogger) Fatal(msg string, args ...any) {
 	if l.Level() >= LevelFatal {
-		l.printParams(LevelFatal, msg, args...)
+		l.printMsg(LevelFatal, msg, args...)
 	}
 }
 
@@ -133,7 +104,7 @@ func (l *slogger) Error(msg string, err error, args ...any) {
 	if l.Level() >= LevelError {
 		params := []any{"err", err.Error()}
 		args = append(params, args...)
-		l.printParams(LevelError, msg, args...)
+		l.printMsg(LevelError, msg, args...)
 	}
 }
 
@@ -145,7 +116,7 @@ func (l *slogger) Warningf(format string, args ...any) {
 
 func (l *slogger) Warning(msg string, args ...any) {
 	if l.Level() >= LevelWarning {
-		l.printParams(LevelWarning, msg, args...)
+		l.printMsg(LevelWarning, msg, args...)
 	}
 }
 
@@ -157,7 +128,7 @@ func (l *slogger) Infof(format string, args ...any) {
 
 func (l *slogger) Info(msg string, args ...any) {
 	if l.Level() >= LevelInfo {
-		l.printParams(LevelInfo, msg, args...)
+		l.printMsg(LevelInfo, msg, args...)
 	}
 }
 
@@ -169,7 +140,7 @@ func (l *slogger) Debugf(format string, args ...any) {
 
 func (l *slogger) Debug(msg string, args ...any) {
 	if l.Level() >= LevelDebug {
-		l.printParams(LevelDebug, msg, args...)
+		l.printMsg(LevelDebug, msg, args...)
 	}
 }
 
@@ -181,7 +152,7 @@ func (l *slogger) Tracef(format string, args ...any) {
 
 func (l *slogger) Trace(msg string, args ...any) {
 	if l.Level() >= LevelTrace {
-		l.printParams(LevelTrace, msg, args...)
+		l.printMsg(LevelTrace, msg, args...)
 	}
 }
 

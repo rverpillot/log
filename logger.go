@@ -35,11 +35,15 @@ const (
 	LevelTrace
 )
 
+type Output struct {
+	Writer    io.Writer
+	Formatter Formatter
+}
+
 type Logger interface {
 	SetLevel(level Level)
 	Level() Level
-	SetWriter(io.Writer)
-	SetFormatter(Formatter)
+	SetOutputs([]*Output)
 
 	Fatalf(format string, args ...any)
 	Fatal(msg string, args ...any)
