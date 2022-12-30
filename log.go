@@ -74,7 +74,7 @@ func (l *slogger) getOutputs() []*Output {
 
 func (l *slogger) printMsg(level Level, msg string, args ...any) {
 	for _, output := range l.getOutputs() {
-		output.Formatter(output.Writer, time.Now(), level, l.module, msg)
+		output.Formatter(output.Writer, time.Now(), level, l.module, msg, args)
 	}
 }
 
@@ -158,7 +158,7 @@ func (l *slogger) Trace(msg string, args ...any) {
 
 // ================================================================================================
 
-func BasicFormatter(w io.Writer, tm time.Time, level Level, module string, msg string, args ...any) {
+func BasicFormatter(w io.Writer, tm time.Time, level Level, module string, msg string, args []any) {
 	fmt.Fprintf(w, `%s %-5s [%s] %s`,
 		tm.Format("2006-01-02 15:04:05"),
 		level,
@@ -192,7 +192,7 @@ func BasicFormatter(w io.Writer, tm time.Time, level Level, module string, msg s
 	fmt.Fprintf(w, "\n")
 }
 
-func TextFormatter(w io.Writer, tm time.Time, level Level, module string, msg string, args ...any) {
+func TextFormatter(w io.Writer, tm time.Time, level Level, module string, msg string, args []any) {
 	fmt.Fprintf(w, `time="%s" level="%s" module="%s" msg=%s`,
 		tm.Format("2006-01-02 15:04:05"),
 		level,
@@ -223,7 +223,7 @@ func TextFormatter(w io.Writer, tm time.Time, level Level, module string, msg st
 	fmt.Fprintf(w, "\n")
 }
 
-func JsonFormatter(w io.Writer, tm time.Time, level Level, module string, msg string, args ...any) {
+func JsonFormatter(w io.Writer, tm time.Time, level Level, module string, msg string, args []any) {
 	data := make(map[string]any)
 	data["time"] = tm.Format("2006-01-02 15:04:05")
 	data["level"] = level

@@ -59,4 +59,4 @@ type Logger interface {
 	Trace(msg string, args ...any)
 }
 
-type Formatter func(w io.Writer, time time.Time, level Level, module string, msg string, args ...any)
+type Formatter func(w io.Writer, time time.Time, level Level, module string, msg string, args []any)
