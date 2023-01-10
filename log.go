@@ -20,18 +20,20 @@ func SetDefaultLogger(logger Logger)     { defaultLogger = logger }
 func SetDefaultLevel(level Level)        { defaultLevel = level }
 func SetDefaultOutput(outputs []*Output) { defaultOutputs = outputs }
 
-func Fatalf(format string, args ...any)        { DefaultLogger().Fatalf(format, args...) }
-func Fatal(msg string, args ...any)            { DefaultLogger().Fatal(msg, args...) }
-func Errorf(format string, args ...any)        { DefaultLogger().Errorf(format, args...) }
-func Error(msg string, err error, args ...any) { DefaultLogger().Error(msg, err, args...) }
-func Warningf(format string, args ...any)      { DefaultLogger().Warningf(format, args...) }
-func Warning(msg string, args ...any)          { DefaultLogger().Warning(msg, args...) }
-func Infof(format string, args ...any)         { DefaultLogger().Infof(format, args...) }
-func Info(msg string, args ...any)             { DefaultLogger().Info(msg, args...) }
-func Debugf(format string, args ...any)        { DefaultLogger().Debugf(format, args...) }
-func Debug(msg string, args ...any)            { DefaultLogger().Debug(msg, args...) }
-func Tracef(format string, args ...any)        { DefaultLogger().Tracef(format, args...) }
-func Trace(msg string, args ...any)            { DefaultLogger().Trace(msg, args...) }
+func Print(level Level, msg string, args ...any)     { DefaultLogger().Print(level, msg, args...) }
+func Printf(level Level, format string, args ...any) { DefaultLogger().Printf(level, format, args...) }
+func Fatalf(format string, args ...any)              { DefaultLogger().Fatalf(format, args...) }
+func Fatal(msg string, args ...any)                  { DefaultLogger().Fatal(msg, args...) }
+func Errorf(format string, args ...any)              { DefaultLogger().Errorf(format, args...) }
+func Error(msg string, err error, args ...any)       { DefaultLogger().Error(msg, err, args...) }
+func Warningf(format string, args ...any)            { DefaultLogger().Warningf(format, args...) }
+func Warning(msg string, args ...any)                { DefaultLogger().Warning(msg, args...) }
+func Infof(format string, args ...any)               { DefaultLogger().Infof(format, args...) }
+func Info(msg string, args ...any)                   { DefaultLogger().Info(msg, args...) }
+func Debugf(format string, args ...any)              { DefaultLogger().Debugf(format, args...) }
+func Debug(msg string, args ...any)                  { DefaultLogger().Debug(msg, args...) }
+func Tracef(format string, args ...any)              { DefaultLogger().Tracef(format, args...) }
+func Trace(msg string, args ...any)                  { DefaultLogger().Trace(msg, args...) }
 
 // ===============================================================================================
 
@@ -72,88 +74,66 @@ func (l *slogger) getOutputs() []*Output {
 	}
 }
 
-func (l *slogger) printMsg(level Level, msg string, args ...any) {
-	for _, output := range l.getOutputs() {
-		output.Formatter(output.Writer, time.Now(), level, l.module, msg, args)
+func (l *slogger) Print(level Level, msg string, args ...any) {
+	if l.Level() >= level {
+		for _, output := range l.getOutputs() {
+			output.Formatter(output.Writer, time.Now(), level, l.module, msg, args)
+		}
 	}
 }
 
-func (l *slogger) printf(level Level, format string, args ...any) {
-	l.printMsg(level, fmt.Sprintf(format, args...))
+func (l *slogger) Printf(level Level, format string, args ...any) {
+	l.Print(level, fmt.Sprintf(format, args...))
 }
 
 func (l *slogger) Fatalf(format string, args ...any) {
-	if l.Level() >= LevelFatal {
-		l.printf(LevelFatal, format, args...)
-	}
+	l.Printf(LevelFatal, format, args...)
 }
 
 func (l *slogger) Fatal(msg string, args ...any) {
-	if l.Level() >= LevelFatal {
-		l.printMsg(LevelFatal, msg, args...)
-	}
+	l.Print(LevelFatal, msg, args...)
 }
 
 func (l *slogger) Errorf(format string, args ...any) {
-	if l.Level() >= LevelError {
-		l.printf(LevelError, format, args...)
-	}
+	l.Printf(LevelError, format, args...)
 }
 
 func (l *slogger) Error(msg string, err error, args ...any) {
-	if l.Level() >= LevelError {
-		params := []any{"err", err.Error()}
-		args = append(params, args...)
-		l.printMsg(LevelError, msg, args...)
-	}
+	params := []any{"err", err.Error()}
+	args = append(params, args...)
+	l.Print(LevelError, msg, args...)
 }
 
 func (l *slogger) Warningf(format string, args ...any) {
-	if l.Level() >= LevelWarning {
-		l.printf(LevelWarning, format, args...)
-	}
+	l.Printf(LevelWarning, format, args...)
 }
 
 func (l *slogger) Warning(msg string, args ...any) {
-	if l.Level() >= LevelWarning {
-		l.printMsg(LevelWarning, msg, args...)
-	}
+	l.Print(LevelWarning, msg, args...)
 }
 
 func (l *slogger) Infof(format string, args ...any) {
-	if l.Level() >= LevelInfo {
-		l.printf(LevelInfo, format, args...)
-	}
+	l.Printf(LevelInfo, format, args...)
 }
 
 func (l *slogger) Info(msg string, args ...any) {
-	if l.Level() >= LevelInfo {
-		l.printMsg(LevelInfo, msg, args...)
-	}
+	l.Print(LevelInfo, msg, args...)
 }
 
 func (l *slogger) Debugf(format string, args ...any) {
-	if l.Level() >= LevelDebug {
-		l.printf(LevelDebug, format, args...)
-	}
+	l.Printf(LevelDebug, format, args...)
 }
 
 func (l *slogger) Debug(msg string, args ...any) {
-	if l.Level() >= LevelDebug {
-		l.printMsg(LevelDebug, msg, args...)
-	}
+	l.Print(LevelDebug, msg, args...)
 }
 
 func (l *slogger) Tracef(format string, args ...any) {
-	if l.Level() >= LevelTrace {
-		l.printf(LevelTrace, format, args...)
-	}
+	l.Printf(LevelTrace, format, args...)
 }
 
 func (l *slogger) Trace(msg string, args ...any) {
-	if l.Level() >= LevelTrace {
-		l.printMsg(LevelTrace, msg, args...)
-	}
+	l.Print(LevelTrace, msg, args...)
 }
 
 // ================================================================================================

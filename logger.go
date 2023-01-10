@@ -45,6 +45,8 @@ type Logger interface {
 	Level() Level
 	SetOutputs([]*Output)
 
+	Print(level Level, msg string, args ...any)
+	Printf(level Level, format string, args ...any)
 	Fatalf(format string, args ...any)
 	Fatal(msg string, args ...any)
 	Errorf(format string, args ...any)
