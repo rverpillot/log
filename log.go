@@ -55,7 +55,7 @@ func (l *slogger) SetLevel(level Level) {
 }
 
 func (l *slogger) Level() Level {
-	if l.level >= LevelError {
+	if l.level >= LevelFatal && l.level <= LevelTrace {
 		return l.level
 	} else {
 		return defaultLevel
@@ -75,7 +75,7 @@ func (l *slogger) getOutputs() []*Output {
 }
 
 func (l *slogger) Print(level Level, msg string, args ...any) {
-	if l.Level() >= level {
+	if level <= l.Level() {
 		for _, output := range l.getOutputs() {
 			output.Formatter(output.Writer, time.Now(), level, l.module, msg, args)
 		}
