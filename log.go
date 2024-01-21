@@ -155,7 +155,11 @@ func BasicFormatter(w io.Writer, tm time.Time, level Level, module string, msg s
 			case string:
 				fmt.Fprintf(w, `"%s"`, value)
 			case []byte:
-				fmt.Fprintf(w, `"%s"`, string(value))
+				str := string(value)
+				if len(str) > 100 {
+					str = str[:100] + "..."
+				}
+				fmt.Fprintf(w, `"%s"`, str)
 			case int, int32, int64:
 				fmt.Fprintf(w, "%d", value)
 			case float64, float32:
@@ -187,7 +191,11 @@ func TextFormatter(w io.Writer, tm time.Time, level Level, module string, msg st
 		case string:
 			fmt.Fprintf(w, "%s", strconv.Quote(value))
 		case []byte:
-			fmt.Fprintf(w, "%s", strconv.Quote(string(value)))
+			str := string(value)
+			if len(str) > 100 {
+				str = str[:100] + "..."
+			}
+			fmt.Fprintf(w, "%s", strconv.Quote(str))
 		case int, int32, int64:
 			fmt.Fprintf(w, "%d", value)
 		case float64, float32:
@@ -216,7 +224,11 @@ func JsonFormatter(w io.Writer, tm time.Time, level Level, module string, msg st
 		case string:
 			data[key] = value
 		case []byte:
-			data[key] = string(value)
+			str := string(value)
+			if len(str) > 100 {
+				str = str[:100] + "..."
+			}
+			data[key] = str
 		case int, int32, int64, float32, float64, bool:
 			data[key] = value
 		case fmt.Stringer:
