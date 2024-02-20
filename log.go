@@ -26,8 +26,10 @@ func Fatalf(format string, args ...any)              { DefaultLogger().Fatalf(fo
 func Fatal(msg string, args ...any)                  { DefaultLogger().Fatal(msg, args...) }
 func Errorf(format string, args ...any)              { DefaultLogger().Errorf(format, args...) }
 func Error(msg string, err error, args ...any)       { DefaultLogger().Error(msg, err, args...) }
-func Warningf(format string, args ...any)            { DefaultLogger().Warningf(format, args...) }
-func Warning(msg string, args ...any)                { DefaultLogger().Warning(msg, args...) }
+func Warningf(format string, args ...any)            { DefaultLogger().Warnf(format, args...) }
+func Warning(msg string, args ...any)                { DefaultLogger().Warn(msg, args...) }
+func Warnf(format string, args ...any)               { DefaultLogger().Warnf(format, args...) }
+func Warn(msg string, args ...any)                   { DefaultLogger().Warn(msg, args...) }
 func Infof(format string, args ...any)               { DefaultLogger().Infof(format, args...) }
 func Info(msg string, args ...any)                   { DefaultLogger().Info(msg, args...) }
 func Debugf(format string, args ...any)              { DefaultLogger().Debugf(format, args...) }
@@ -104,11 +106,11 @@ func (l *slogger) Error(msg string, err error, args ...any) {
 	l.Print(LevelError, msg, args...)
 }
 
-func (l *slogger) Warningf(format string, args ...any) {
+func (l *slogger) Warnf(format string, args ...any) {
 	l.Printf(LevelWarning, format, args...)
 }
 
-func (l *slogger) Warning(msg string, args ...any) {
+func (l *slogger) Warn(msg string, args ...any) {
 	l.Print(LevelWarning, msg, args...)
 }
 
